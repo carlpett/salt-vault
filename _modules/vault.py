@@ -6,20 +6,6 @@
 :platform:      all
 
 Interact with Hashicorp Vault
-
-Available configuration options on master:
-
-vault:
-url: https://localhost:8200/v1
-master_token: a427786c-d90a-40a2-a089-ef7af1849138
-policies:
-  - saltstack/minion/{minion}
-  - saltstack/minions
-
-Default policies applied are 'saltstack/minion/{minion}', 'saltstack/minions',
-with `{minion}` expanding to the minion id. Available tokens are `minion` and
-the `grains` dictionary. Example: 'saltstack/by-os/{grains[os]}', if you have
-policies to allow certain secrets only visible for clients on certain OSes.
 '''
 
 import logging

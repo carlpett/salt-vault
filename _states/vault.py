@@ -1,3 +1,13 @@
+# -*- coding: utf-8 -*-
+'''
+:maintainer:    Calle Pettersson <cpettsson@gmail.com>
+:maturity:      new
+:depends:       python-requests
+:platform:      all
+
+Interact with Hashicorp Vault
+'''
+
 import json
 import logging
 import requests
