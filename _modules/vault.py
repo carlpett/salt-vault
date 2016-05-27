@@ -36,15 +36,7 @@ def read_secret(path, key=None):
         second: {{ supersecret.second }}
   '''
   try:
-    minion_id = __opts__['id']
-    pki_dir = __opts__['pki_dir']
-    signature = salt.crypt.sign_message('{0}/minion.pem'.format(pki_dir), minion_id)
-
-    result = __salt__['publish.runner']('vault.generate_token', arg=[minion_id, signature])
-    if not isinstance(result, dict) or result.has_key('error'):
-      log.error('Failed to get token from master: {0}'.format(result))
-      raise salt.exceptions.CommandExecutionError(result)
-
+    result = _get_vault_connection_details()
     data = _call_vault(result['url'], path, result['token'])
 
     # TODO: Maybe it would be clearer, both here and in usages, to have separate read-all and read-specific?
@@ -53,6 +45,30 @@ def read_secret(path, key=None):
     return data
   except Exception as e:
     raise salt.exceptions.CommandExecutionError(e)
+
+def _get_vault_connection_details():
+  if __opts__.has_key('vault'):
+    try:
+      return {
+        'url': __opts__['vault']['url'],
+        'token': __opts__['vault']['auth']['token']
+      }
+    except KeyError as err:
+      errmsg = 'Minion has "vault" config section, but could not find key "{0}" within'.format(err.message)
+      raise salt.exceptions.CommandExecutionError(errmsg)
+  else:
+    minion_id = __opts__['id']
+    pki_dir = __opts__['pki_dir']
+    signature = salt.crypt.sign_message('{0}/minion.pem'.format(pki_dir), minion_id)
+
+    result = __salt__['publish.runner']('vault.generate_token', arg=[minion_id, signature])
+    if not isinstance(result, dict) or result.has_key('error'):
+      log.error('Failed to get token from master: {0}'.format(result))
+      raise salt.exceptions.CommandExecutionError(result)
+    return {
+      'url': result['url'],
+      'token': result['token']
+    }
 
 def _call_vault(vault_url, path, token):
   url = "%s/v1/%s" % (vault_url, path)
