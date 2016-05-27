@@ -84,3 +84,23 @@ peer_run:
   .*:
     - vault.generate_token
 ```
+
+
+## Masterless
+In a masterless setup, the minion can be configured to contact Vault directly.
+Example `/etc/salt/minion.d/vault.conf`:
+
+```
+vault:
+  url: https://vault.service.domain:8200
+  auth:
+    token: 11111111-2222-3333-4444-555555555555
+```
+
+The minion will use the token as-is, without (potentially) downgrading to other
+policies as in the master scenario.
+
+Note that this means distributing a token to each minion, stored in clear text
+on the file system. Carefully consider the implications of this and plan for
+how to revoke the tokens. Also note that non-root tokens expire unless renewed
+periodically.
