@@ -7,16 +7,12 @@
 
 Interact with Hashicorp Vault
 '''
-
 import logging
-import json
-import requests
 
 import salt.crypt
 import salt.exceptions
 
 log = logging.getLogger(__name__)
-logging.getLogger("requests").setLevel(logging.WARNING)
 
 def read_secret(path, key=None):
   '''
@@ -36,8 +32,11 @@ def read_secret(path, key=None):
         second: {{ supersecret.second }}
   '''
   try:
-    result = _get_vault_connection_details()
-    data = _call_vault(result['url'], path, result['token'])
+    url = 'v1/{0}'.format(path)
+    response = __utils__['vault.make_request']('GET', url)
+    if response.status_code != 200:
+      response.raise_for_status()
+    data = response.json()['data']
 
     # TODO: Maybe it would be clearer, both here and in usages, to have separate read-all and read-specific?
     if key is not None:
@@ -45,37 +44,3 @@ def read_secret(path, key=None):
     return data
   except Exception as e:
     raise salt.exceptions.CommandExecutionError(e)
-
-def _get_vault_connection_details():
-  if __opts__.has_key('vault'):
-    try:
-      return {
-        'url': __opts__['vault']['url'],
-        'token': __opts__['vault']['auth']['token']
-      }
-    except KeyError as err:
-      errmsg = 'Minion has "vault" config section, but could not find key "{0}" within'.format(err.message)
-      raise salt.exceptions.CommandExecutionError(errmsg)
-  else:
-    minion_id = __opts__['id']
-    pki_dir = __opts__['pki_dir']
-    signature = salt.crypt.sign_message('{0}/minion.pem'.format(pki_dir), minion_id)
-
-    result = __salt__['publish.runner']('vault.generate_token', arg=[minion_id, signature])
-    if not isinstance(result, dict) or result.has_key('error'):
-      log.error('Failed to get token from master: {0}'.format(result))
-      raise salt.exceptions.CommandExecutionError(result)
-    return {
-      'url': result['url'],
-      'token': result['token']
-    }
-
-def _call_vault(vault_url, path, token):
-  url = "%s/v1/%s" % (vault_url, path)
-  headers = {'X-Vault-Token': token}
-  response = requests.get(url, headers=headers)
-  if response.status_code != 200:
-    response.raise_for_status()
-  
-  data = response.json()['data']
-  return data

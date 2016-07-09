@@ -8,7 +8,6 @@
 Interact with Hashicorp Vault
 '''
 
-import json
 import logging
 import requests
 
@@ -40,7 +39,7 @@ def generate_token(minion_id, signature):
     authData = response.json()['auth']
     return { 'token': authData['client_token'], 'url': config['url'] }
   except Exception as e:
-    return {'error': e}
+    return { 'error': str(e) }
 
 def _validate_minion(minion_id, signature):
   pki_dir = __opts__['pki_dir']
