@@ -41,6 +41,10 @@ def generate_token(minion_id, signature):
   except Exception as e:
     return { 'error': str(e) }
 
+def show_policies(minion_id):
+  config = __opts__['vault']
+  return _get_policies(minion_id, config)
+
 def _validate_minion(minion_id, signature):
   pki_dir = __opts__['pki_dir']
   public_key = '{0}/minions/{1}'.format(pki_dir, minion_id)
