@@ -24,7 +24,7 @@ def policy_present(name, rules):
     elif response.status_code == 404:
       return _create_new_policy(name, rules)
     else:
-      response.raise_for_reason()
+      response.raise_for_status()
   except Exception as e:
     return {
       'name': name,

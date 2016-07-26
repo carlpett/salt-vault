@@ -31,7 +31,7 @@ def generate_token(minion_id, signature):
     }
     payload = { 'policies': _get_policies(minion_id, config), 'num_uses': 1, 'metadata': audit_data }
 
-    response = requests.post(url, headers=headers, data=json.dumps(payload))
+    response = requests.post(url, headers=headers, json=payload)
 
     if response.status_code != 200:
       return { 'error': response.reason }
