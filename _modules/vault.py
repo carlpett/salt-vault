@@ -22,11 +22,11 @@ def read_secret(path, key=None):
 
   .. code-block:: jinja
 
-      my-secret: {{ salt['vault'].secret('secret/my/secret', 'some-key') }}
+      my-secret: {{ salt['vault'].read_secret('secret/my/secret', 'some-key') }}
 
   .. code-block:: jinja
 
-      {% set supersecret = salt['vault'].secret('secret/my/secret') %}
+      {% set supersecret = salt['vault'].read_secret('secret/my/secret') %}
       secrets:
         first: {{ supersecret.first }}
         second: {{ supersecret.second }}
