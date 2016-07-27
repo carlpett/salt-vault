@@ -19,11 +19,21 @@ def __virtual__():
     return False
 
 def _get_token_and_url_from_master():
-  minion_id = __opts__['id']
+  minion_id = __grains__['id']
   pki_dir = __opts__['pki_dir']
-  signature = salt.crypt.sign_message('{0}/minion.pem'.format(pki_dir), minion_id)
 
-  result = __salt__['publish.runner']('vault.generate_token', arg=[minion_id, signature])
+  # When rendering pillars, the module executes on the master, but needs a token issued for the minion
+  if __opts__.get('__role', 'minion') == 'minion':
+    private_key = '{0}/minion.pem'.format(pki_dir)
+    log.debug('Running on minion, signing token request with key {0}'.format(private_key))
+    signature = salt.crypt.sign_message(private_key, minion_id)
+    result = __salt__['publish.runner']('vault.generate_token', arg=[minion_id, signature])
+  else:
+    private_key = '{0}/master.pem'.format(pki_dir)
+    log.debug('Running on master, signing token request for {0} with key {1}'.format(minion_id, private_key))
+    signature = salt.crypt.sign_message(private_key, minion_id)
+    result = __salt__['saltutil.runner']('vault.generate_token', minion_id=minion_id, signature=signature, impersonated_by_master=True)
+
   if not result:
     log.error('Failed to get token from master! No result returned - is the peer publish configuration correct?')
     raise salt.exceptions.CommandExecutionError(result)
@@ -39,7 +49,8 @@ def _get_token_and_url_from_master():
   }
 
 def get_vault_connection():
-  if __opts__.has_key('vault'):
+  if __opts__.has_key('vault') and not __opts__.get('__role', 'minion') == 'master':
+    log.debug('Using Vault connection details from local config')
     try:
       return {
         'url': __opts__['vault']['url'],
@@ -49,6 +60,7 @@ def get_vault_connection():
       errmsg = 'Minion has "vault" config section, but could not find key "{0}" within'.format(err.message)
       raise salt.exceptions.CommandExecutionError(errmsg)
   else:
+    log.debug('Contacting master for Vault connection details')
     return _get_token_and_url_from_master()
 
 def make_request(method, resource, **args):

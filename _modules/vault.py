@@ -31,6 +31,7 @@ def read_secret(path, key=None):
         first: {{ supersecret.first }}
         second: {{ supersecret.second }}
   '''
+  log.debug('Reading Vault secret for {0} at {1}'.format(__grains__['id'], path))
   try:
     url = 'v1/{0}'.format(path)
     response = __utils__['vault.make_request']('GET', url)
@@ -43,4 +44,5 @@ def read_secret(path, key=None):
       return data[key]
     return data
   except Exception as e:
+    log.error('Failed to read secret! {0}: {1}'.format(type(e).__name__, e))
     raise salt.exceptions.CommandExecutionError(e)

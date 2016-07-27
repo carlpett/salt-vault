@@ -69,8 +69,8 @@ vault:
   Policies that are assigned to minions when requesting a token. These can
   either be static, eg `saltstack/minions`, or templated, eg 
   `saltstack/minion/{minion}`. `{minion}` is shorthand for `grains[id]`.
-  Both grains and pillar are available, for example these are both valid:
-  `my-policies/{grains[os]}`, `{pillar[system]}/{grains[fqdn]}`
+  Grains are also available, for example like this:
+  `my-policies/{grains[os]}`
 
   Optional, if `policies` is not configured, `saltstack/minions` and 
   `saltstack/{minion}` are used as defaults.
