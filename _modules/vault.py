@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-# [SublimeLinter flake8-max-line-length:160 flake8-max-complexity:10 flake8-ignore:F821 flake8-ignore:E111 flake8-ignore:F821]
 '''
 :maintainer:    Calle Pettersson <cpettsson@gmail.com>
 :maturity:      new
@@ -49,23 +48,23 @@ def read_secret(path, key=None):
     raise salt.exceptions.CommandExecutionError(e)
 
 
-def set_secret(path, **kwargs):
+def write_secret(path, **kwargs):
   '''
   Set secret at the path in vault. The vault policy used must allow this.
 
   CLI Example:
 
   .. code-block:: bash
-      salt '*' vault.set_secret "secret/my/secret" user="foo" password="bar"
+      salt '*' vault.write_secret "secret/my/secret" user="foo" password="bar"
   '''
-  log.debug('Setting vault secrets for {0} at {1}'
+  log.debug('Writing vault secrets for {0} at {1}'
             .format(__grains__['id'], path))
   try:
     url = 'v1/{0}'.format(path)
-    response = __utils__['vault.make_request']('POST', url, data=kwargs)
+    response = __utils__['vault.make_request']('POST', url, json=kwargs)
     if response.status_code != 204:
       response.raise_for_status()
-    return response.json()['data']
+    return True
   except Exception as e:
-    log.error('Failed to set secret! {0}: {1}'.format(type(e).__name__, e))
+    log.error('Failed to write secret! {0}: {1}'.format(type(e).__name__, e))
     raise salt.exceptions.CommandExecutionError(e)
