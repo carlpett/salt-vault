@@ -68,3 +68,48 @@ def write_secret(path, **kwargs):
   except Exception as e:
     log.error('Failed to write secret! {0}: {1}'.format(type(e).__name__, e))
     raise salt.exceptions.CommandExecutionError(e)
+
+
+def delete_secret(path):
+  '''
+  Delete secret at the path in vault. The vault policy used must allow this.
+
+  CLI Example:
+
+  .. code-block:: bash
+      salt '*' vault.delete_secret "secret/my/secret"
+  '''
+  log.debug('Deleting vault secrets for {0} in {1}'
+            .format(__grains__['id'], path))
+  try:
+    url = 'v1/{0}'.format(path)
+    response = __utils__['vault.make_request']('DELETE', url)
+    if response.status_code != 204:
+      response.raise_for_status()
+    return True
+  except Exception as e:
+    log.error('Failed to delete secret! {0}: {1}'.format(type(e).__name__, e))
+    raise salt.exceptions.CommandExecutionError(e)
+
+def list_secrets(path):
+  '''
+  List secret keys at the path in vault. The vault policy used must allow this.
+  The path should end with a trailing slash.
+
+  CLI Example:
+
+  .. code-block:: bash
+      salt '*' vault.list_secrets "secret/my/"
+  '''
+  log.debug('Listing vault secret keys for {0} in {1}'
+            .format(__grains__['id'], path))
+  try:
+    url = 'v1/{0}'.format(path)
+    response = __utils__['vault.make_request']('LIST', url)
+    if response.status_code != 200:
+      response.raise_for_status()
+    return response.json()['data']
+  except Exception as e:
+    log.error('Failed to list secrets! {0}: {1}'.format(type(e).__name__, e))
+    raise salt.exceptions.CommandExecutionError(e)
+
