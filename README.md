@@ -24,6 +24,28 @@ secrets:
   second: {{ supersecret.second }}
 ```
 
+### Setting secrets
+Set a secret using the execution module:
+
+```
+salt '*' vault.write_secret "secret/my/secret" user="foo" password="bar"
+```
+
+### Listing secrets
+List keys in a specific path using the execution module:
+
+```
+salt '*' vault.list_secrets "secret/my/secret/"
+```
+
+### Deleting secrets
+Delete the path using the execution module:
+
+```
+salt '*' vault.delete_secret "secret/my/secret"
+```
+
+
 ### Managing policies
 The state `vault.policy_present` takes two parameters, `name` and `rules`. 
 `rules` must be given as in-line HCL:
