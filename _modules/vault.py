@@ -59,9 +59,10 @@ def write_secret(path, **kwargs):
   '''
   log.debug('Writing vault secrets for {0} at {1}'
             .format(__grains__['id'], path))
+  data = dict( [(x,y) for x,y in kwargs.items() if not x.startswith('__')] )
   try:
     url = 'v1/{0}'.format(path)
-    response = __utils__['vault.make_request']('POST', url, json=kwargs)
+    response = __utils__['vault.make_request']('POST', url, json=data)
     if response.status_code != 204:
       response.raise_for_status()
     return True
