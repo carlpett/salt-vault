@@ -60,13 +60,14 @@ def _validate_signature(minion_id, signature, impersonated_by_master):
   log.trace('Signature ok')
 
 def _get_policies(minion_id, config):
+  _, grains, _ = salt.utils.minions.get_minion_data(minion_id, __opts__)
   policyPatterns = config.get('policies', ['saltstack/minion/{minion}', 'saltstack/minions'])
 
   # Allowing pillars in the policy template creates infinite recursion if there
   # are pillars with secrets as values. Removed until that can be solved.
   #minion_pillar = __salt__['pillar.show_pillar'](minion_id)
   #mappings = { 'minion': minion_id, 'grains': __grains__, 'pillar': minion_pillar }
-  mappings = { 'minion': minion_id, 'grains': __grains__ }
+  mappings = { 'minion': minion_id, 'grains': grains}
 
   policies = []
   for pattern in policyPatterns:
