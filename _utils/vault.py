@@ -1,5 +1,6 @@
 import logging
 import requests
+import base64
 
 import salt.crypt
 import salt.exceptions
@@ -26,7 +27,7 @@ def _get_token_and_url_from_master():
   if __opts__.get('__role', 'minion') == 'minion':
     private_key = '{0}/minion.pem'.format(pki_dir)
     log.debug('Running on minion, signing token request with key {0}'.format(private_key))
-    signature = salt.crypt.sign_message(private_key, minion_id)
+    signature = base64.b64encode(salt.crypt.sign_message(private_key, minion_id))
     result = __salt__['publish.runner']('vault.generate_token', arg=[minion_id, signature])
   else:
     private_key = '{0}/master.pem'.format(pki_dir)
