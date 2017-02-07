@@ -32,7 +32,7 @@ def _get_token_and_url_from_master():
   else:
     private_key = '{0}/master.pem'.format(pki_dir)
     log.debug('Running on master, signing token request for {0} with key {1}'.format(minion_id, private_key))
-    signature = salt.crypt.sign_message(private_key, minion_id)
+    signature = base64.b64encode(salt.crypt.sign_message(private_key, minion_id))
     result = __salt__['saltutil.runner']('vault.generate_token', minion_id=minion_id, signature=signature, impersonated_by_master=True)
 
   if not result:
