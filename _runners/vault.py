@@ -10,6 +10,7 @@ Interact with Hashicorp Vault
 
 import logging
 import requests
+import base64
 
 import salt.crypt
 import salt.exceptions
@@ -55,6 +56,7 @@ def _validate_signature(minion_id, signature, impersonated_by_master):
     public_key = '{0}/minions/{1}'.format(pki_dir, minion_id)
 
   log.trace('Validating signature for {0}'.format(minion_id))
+  signature = base64.b64decode(signature)
   if not salt.crypt.verify_signature(public_key, minion_id, signature):
     raise salt.exceptions.AuthenticationError('Could not validate token request from {0}'.format(minion_id))
   log.trace('Signature ok')
