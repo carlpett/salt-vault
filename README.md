@@ -94,6 +94,18 @@ vault:
   Grains are also available, for example like this:
   `my-policies/{grains[os]}`
 
+  If a template contains a grain which evaluates to a list, it will be expanded
+  into multiple policies. For example, given the template 
+  `saltstack/by-role/{grains[roles]}`, and a minion having these grains:
+
+    grains:
+        roles:
+            - web
+            - database
+
+  The minion will have the policies `saltstack/by-role/web` and
+  `saltstack/by-role/database`.
+
   Optional, if `policies` is not configured, `saltstack/minions` and 
   `saltstack/{minion}` are used as defaults.
 
