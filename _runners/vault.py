@@ -70,7 +70,7 @@ def _get_policies(minion_id, config):
   # are pillars with secrets as values. Removed until that can be solved.
   #minion_pillar = __salt__['pillar.show_pillar'](minion_id)
   #mappings = { 'minion': minion_id, 'grains': __grains__, 'pillar': minion_pillar }
-  mappings = { 'minion': minion_id, 'grains': grains}
+  mappings = { 'minion': minion_id, 'grains': grains or {}}
 
   policies = []
   for pattern in policyPatterns:
