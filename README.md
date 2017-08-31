@@ -2,10 +2,10 @@
 Manage and use a [Hashicorp Vault](https://www.vaultproject.io) installation 
 within Saltstack.
 
-_Note:_ The code in this repo has been merged with the main Saltstack
-distribution. It will be part of the next feature release, 2017.x. When that
-version has been released, this repo will be deprecated. Until then, bug fixes
-and any new features will be added in both repos.
+# Deprecation note
+The code in this repo has been merged with the main Saltstack distribution. 
+Saltstack versions 2017.7 and higher has this code, and possibly refinements
+and bug fixes, bundled in the installation.
 
 ## Usages
 salt-vault contains both an execution module and a state module (and internally
